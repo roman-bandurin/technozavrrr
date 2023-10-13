@@ -4,6 +4,7 @@
       v-for="product in products"
       :key="product.id"
       v-bind="product"
+      @goto-page="gotoPage"
     />
   </ul>
 </template>
@@ -20,6 +21,11 @@ export default {
     products: {
       type: Array,
       required: true
+    }
+  },
+  methods: {
+    gotoPage(pageName, pageParams) {
+      this.$emit('goto-page', pageName, pageParams)
     }
   }
 }
