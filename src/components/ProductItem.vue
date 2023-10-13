@@ -43,12 +43,14 @@
 </template>
 
 <script>
+import eventBus from '@/eventBus'
+
 export default {
   name: "ProductItem",
   props: ["id", "image", "title", "price", "colors", "sizes"],
   methods: {
     gotoPage(pageName, pageParams) {
-      this.$emit("goto-page", pageName, pageParams)
+      eventBus.$emit("goto-page", pageName, pageParams)
     },
   },
 }

@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import eventBus from '@/eventBus'
+
 export default {
   name: "NotFoundPage",
   props: {
@@ -23,7 +25,7 @@ export default {
   },
   methods: {
     gotoPage(pageName, pageParams) {
-      this.$emit("goto-page", pageName, pageParams)
+      eventBus.$emit("goto-page", pageName, pageParams)
     },
   },
 }

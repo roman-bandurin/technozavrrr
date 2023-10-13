@@ -18,7 +18,6 @@
         <ProductList
           v-if="pageProducts && pageProducts.length"
           :products="pageProducts"
-          @goto-page="gotoPage"
         />
 
         <BasePagination
@@ -101,11 +100,6 @@ export default {
       const offset = (this.page - 1) * this.productsPerPage
       return this.filteredProducts.slice(offset, offset + this.productsPerPage)
     },
-  },
-  methods: {
-    gotoPage(pageName, pageParams) {
-      this.$emit("goto-page", pageName, pageParams)
-    },
-  },
+  }
 }
 </script>
