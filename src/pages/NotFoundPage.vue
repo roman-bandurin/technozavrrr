@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import eventBus from '@/eventBus'
+import gotoPage from "@/helpers/gotoPage"
 
 export default {
   name: "NotFoundPage",
@@ -24,9 +24,7 @@ export default {
     },
   },
   methods: {
-    gotoPage(pageName, pageParams) {
-      eventBus.$emit("goto-page", pageName, pageParams)
-    },
+    gotoPage,
   },
 }
 </script>
