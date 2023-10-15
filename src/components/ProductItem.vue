@@ -1,12 +1,12 @@
 <template>
   <li class="catalog__item">
-    <a href="#" @click.prevent="gotoPage('product', { id })">
+    <router-link :to="{ name: 'product', params: { id } }">
       <img :src="image" :alt="title" />
 
       <h3 class="catalog__title">
         {{ title }}
       </h3>
-    </a>
+    </router-link>
 
     <span class="catalog__price"> {{ price | numberFormat }} ₽ </span>
 
@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import gotoPage from "@/helpers/gotoPage"
 import numberFormat from "@/helpers/numberFormat"
 
 export default {
@@ -51,9 +50,6 @@ export default {
   props: ["id", "image", "title", "price", "colors", "sizes"],
   filters: {
     numberFormat,
-  },
-  methods: {
-    gotoPage,
   },
 }
 </script>

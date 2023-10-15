@@ -44,12 +44,6 @@ export default {
     BasePagination,
     ProductFilter,
   },
-  props: {
-    pageParams: {
-      type: Object,
-      required: true,
-    },
-  },
   data() {
     return {
       page: 1,
@@ -100,6 +94,6 @@ export default {
       const offset = (this.page - 1) * this.productsPerPage
       return this.filteredProducts.slice(offset, offset + this.productsPerPage)
     },
-  }
+  },
 }
 </script>
