@@ -51,21 +51,16 @@
                 Артикул: {{ cartProduct.productId }}
               </span>
 
-              <div class="product__counter form__counter">
-                <button type="button" aria-label="Убрать один товар">
-                  <svg width="10" height="10" fill="currentColor">
-                    <use xlink:href="#icon-minus"></use>
-                  </svg>
-                </button>
-
-                <input type="text" value="1" name="count" />
-
-                <button type="button" aria-label="Добавить один товар">
-                  <svg width="10" height="10" fill="currentColor">
-                    <use xlink:href="#icon-plus"></use>
-                  </svg>
-                </button>
-              </div>
+              <BaseCounter
+                :value="cartProduct.amount"
+                @input="
+                  addProductToCard(
+                    cartProduct.productId,
+                    cartProduct.amount,
+                    $event
+                  )
+                "
+              />
 
               <b class="product__price"> 18 990 ₽ </b>
 
@@ -98,12 +93,23 @@
 </template>
 
 <script>
+import BaseCounter from "@/components/BaseCounter.vue"
+
 export default {
   name: "CartPage",
-  components: {},
+  components: {
+    BaseCounter,
+  },
   data() {
     return {}
   },
-  computed: {},
+  methods: {
+    addProductToCard(productId, currentAmount, amount) {
+      this.$store.commit("addProductToCard", {
+        productId,
+        amount: +amount - currentAmount,
+      })
+    },
+  },
 }
 </script>

@@ -9,9 +9,22 @@ export default new Vuex.Store({
       { productId: 1, amount: 1 }
     ],
   },
-  getters: {
-  },
+  getters: {},
   mutations: {
+    addProductToCard({ cartProducts }, { productId, amount }) {
+      const cartProduct = cartProducts.find(
+        (item) => item.productId === productId
+      )
+
+      if (cartProduct) {
+        cartProduct.amount += +amount
+      } else {
+        cartProducts.push({
+          productId,
+          amount,
+        })
+      }
+    },
   },
   actions: {
   },
