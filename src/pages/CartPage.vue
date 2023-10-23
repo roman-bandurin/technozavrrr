@@ -30,39 +30,38 @@
             class="cart__list"
           >
             <li
-              v-for="cartProduct in $store.state.cartProducts"
-              :key="cartProduct.productId"
+              v-for="({ productId, product: { image, title }, amount, priceAmount }) in products"
+              :key="productId"
               class="cart__item product"
             >
               <div class="product__pic">
                 <img
-                  src="img/phone-square-3.jpg"
+                  :src="image"
                   width="120"
                   height="120"
                   srcset="img/phone-square-3@2x.jpg 2x"
-                  alt="Название товара"
+                  :alt="title"
                 />
               </div>
               <h3 class="product__title">
-                Смартфон Xiaomi Redmi Note 7 Pro 6/128GB
+                {{ title }}
               </h3>
-              <p class="product__info">Объем: <span>128GB</span></p>
               <span class="product__code">
-                Артикул: {{ cartProduct.productId }}
+                Артикул: {{ productId }}
               </span>
 
               <BaseCounter
-                :value="cartProduct.amount"
+                :value="amount"
                 @input="
                   addProductToCard(
-                    cartProduct.productId,
-                    cartProduct.amount,
+                    productId,
+                    amount,
                     $event
                   )
                 "
               />
 
-              <b class="product__price"> 18 990 ₽ </b>
+              <b class="product__price"> {{ priceAmount | numberFormat }} ₽ </b>
 
               <button
                 class="product__del button-del"
@@ -81,7 +80,7 @@
           <p class="cart__desc">
             Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
           </p>
-          <p class="cart__price">Итого: <span>32 970 ₽</span></p>
+          <p class="cart__price">Итого: <span>{{ cartTotalPrice | numberFormat }} ₽</span></p>
 
           <button class="cart__button button button--primery" type="submit">
             Оформить заказ
@@ -94,14 +93,22 @@
 
 <script>
 import BaseCounter from "@/components/BaseCounter.vue"
+import numberFormat from "@/helpers/numberFormat";
+import { mapGetters } from "vuex"
 
 export default {
   name: "CartPage",
   components: {
     BaseCounter,
   },
+  filters: {
+    numberFormat,
+  },
   data() {
     return {}
+  },
+  computed: {
+    ...mapGetters({ products: 'cartDetailProducts', cartTotalPrice: 'cartTotalPrice' })
   },
   methods: {
     addProductToCard(productId, currentAmount, amount) {
