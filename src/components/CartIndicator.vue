@@ -8,21 +8,22 @@
       <use xlink:href="#icon-cart"></use>
     </svg>
     <span
-      v-if="$store.state.cartProducts && $store.state.cartProducts.length"
+      v-if="cartProducts && cartProducts.length"
       class="header__count"
       aria-label="Количество товаров"
     >
-      {{ $store.state.cartProducts.length }}
+      {{ cartProducts.length }}
     </span>
   </router-link>
 </template>
 
 <script>
+import { mapState } from "vuex"
+
 export default {
   name: "CartIndicator",
-  model: {},
-  props: {},
-  computed: {},
-  methods: {},
+  computed: {
+    ...mapState(["cartProducts"]),
+  },
 }
 </script>

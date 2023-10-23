@@ -49,7 +49,7 @@
           <form
             action="#"
             method="POST"
-            @submit.prevent="addProductToCard"
+            @submit.prevent="addProduct"
             class="form"
           >
             <b class="item__price"> {{ product.price | numberFormat }} ₽ </b>
@@ -154,6 +154,7 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex"
 import products from "@/data/products.json"
 import categories from "@/data/categories.json"
 
@@ -185,8 +186,9 @@ export default {
     },
   },
   methods: {
-    addProductToCard() {
-      this.$store.commit("addProductToCard", {
+    ...mapMutations(["addProductToCart"]),
+    addProduct() {
+      this.addProductToCart({
         productId: this.product.id,
         amount: +this.productAmount,
       })

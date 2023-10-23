@@ -7,9 +7,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    cartProducts: [
-      { productId: 1, amount: 1 }
-    ],
+    cartProducts: [{ productId: 1, amount: 1 }],
   },
   getters: {
     cartDetailProducts({ cartProducts }) {
@@ -31,19 +29,40 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    addProductToCard({ cartProducts }, { productId, amount }) {
+    addProductToCart({ cartProducts }, { productId, amount }) {
       const cartProduct = cartProducts.find(
         (item) => item.productId === productId
       )
 
       if (cartProduct) {
-        cartProduct.amount += +amount
+        this.commit("updateCartProductAmount", {
+          productId,
+          amount: cartProduct.amount + +amount,
+        })
       } else {
         cartProducts.push({
           productId,
           amount,
         })
       }
+    },
+    updateCartProductAmount({ cartProducts }, { productId, amount }) {
+      const cartProduct = cartProducts.find(
+        (item) => item.productId === productId
+      )
+
+      if (cartProduct) {
+        if (+amount > 0) {
+          cartProduct.amount = +amount
+        } else {
+          this.commit("deleteCartProduct", { productId })
+        }
+      }
+    },
+    deleteCartProduct(state, { productId }) {
+      state.cartProducts = state.cartProducts.filter(
+        (item) => item.productId !== productId
+      )
     },
   },
 })
