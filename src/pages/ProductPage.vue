@@ -3,22 +3,14 @@
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
-          <a
-            href="#"
-            @click.prevent="gotoPage('main')"
-            class="breadcrumbs__link"
-          >
+          <router-link :to="{ name: 'main' }" class="breadcrumbs__link">
             Каталог
-          </a>
+          </router-link>
         </li>
         <li class="breadcrumbs__item">
-          <a
-            href="#"
-            @click.prevent="gotoPage('main')"
-            class="breadcrumbs__link"
-          >
+          <router-link :to="{ name: 'main' }" class="breadcrumbs__link">
             {{ category.title }}
-          </a>
+          </router-link>
         </li>
         <li class="breadcrumbs__item">
           <a class="breadcrumbs__link"> {{ product.title }} </a>
@@ -54,7 +46,12 @@
         <span class="item__code">Артикул: {{ product.id }}</span>
         <h2 class="item__title">{{ product.title }}</h2>
         <div class="item__form">
-          <form class="form" action="#" method="POST">
+          <form
+            action="#"
+            method="POST"
+            @submit.prevent="addProduct"
+            class="form"
+          >
             <b class="item__price"> {{ product.price | numberFormat }} ₽ </b>
 
             <fieldset class="form__block">
@@ -106,21 +103,7 @@
             </fieldset>
 
             <div class="item__row">
-              <div class="form__counter">
-                <button type="button" aria-label="Убрать один товар">
-                  <svg width="12" height="12" fill="currentColor">
-                    <use xlink:href="#icon-minus"></use>
-                  </svg>
-                </button>
-
-                <input type="text" value="1" name="count" />
-
-                <button type="button" aria-label="Добавить один товар">
-                  <svg width="12" height="12" fill="currentColor">
-                    <use xlink:href="#icon-plus"></use>
-                  </svg>
-                </button>
-              </div>
+              <BaseCounter v-model.number="productAmount" />
 
               <button class="button button--primery" type="submit">
                 В корзину
@@ -171,26 +154,30 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex"
 import products from "@/data/products.json"
 import categories from "@/data/categories.json"
 
-import gotoPage from "@/helpers/gotoPage"
 import numberFormat from "@/helpers/numberFormat"
+
+import BaseCounter from "@/components/BaseCounter.vue"
 
 export default {
   name: "ProductPage",
-  props: {
-    pageParams: {
-      type: Object,
-      required: true,
-    },
-  },
   filters: {
     numberFormat,
   },
+  components: {
+    BaseCounter,
+  },
+  data() {
+    return {
+      productAmount: 1,
+    }
+  },
   computed: {
     product() {
-      return products.find((product) => product.id === this.pageParams.id)
+      return products.find((product) => product.id === +this.$route.params.id)
     },
     category() {
       return categories.find(
@@ -199,7 +186,14 @@ export default {
     },
   },
   methods: {
-    gotoPage,
+    ...mapMutations(["addProductToCart"]),
+    addProduct() {
+      this.addProductToCart({
+        productId: this.product.id,
+        amount: +this.productAmount,
+      })
+      this.productAmount = 1
+    },
   },
 }
 </script>

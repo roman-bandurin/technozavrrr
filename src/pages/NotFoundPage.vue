@@ -4,28 +4,17 @@
       <h1 class="content__title content__title--not-found">404</h1>
       <div class="content__title">Страница не найдена</div>
       <div>
-        <a href="#" @click.prevent="gotoPage('main')" class="breadcrumbs__link">
+        <router-link :to="{ name: 'main' }" class="breadcrumbs__link">
           На главную
-        </a>
+        </router-link>
       </div>
     </div>
   </main>
 </template>
 
 <script>
-import gotoPage from "@/helpers/gotoPage"
-
 export default {
   name: "NotFoundPage",
-  props: {
-    pageParams: {
-      type: Object,
-      required: true,
-    },
-  },
-  methods: {
-    gotoPage,
-  },
 }
 </script>
 
