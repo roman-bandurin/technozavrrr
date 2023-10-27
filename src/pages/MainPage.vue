@@ -15,10 +15,13 @@
       />
 
       <section class="catalog">
-        <ProductList
-          v-if="pageProducts && pageProducts.length"
-          :products="pageProducts"
-        />
+        <ul v-if="pageProducts && pageProducts.length" class="catalog__list">
+          <ProductItem
+            v-for="product in pageProducts"
+            :key="product.id"
+            v-bind="product"
+          />
+        </ul>
 
         <BasePagination
           v-if="filteredProductsCount"
@@ -32,15 +35,16 @@
 </template>
 
 <script>
+import axios from "axios"
 import products from "@/data/products.json"
-import ProductList from "@/components/ProductList.vue"
+import ProductItem from "@/components/ProductItem.vue"
 import BasePagination from "@/components/BasePagination.vue"
 import ProductFilter from "@/components/ProductFilter.vue"
 
 export default {
   name: "MainPage",
   components: {
-    ProductList,
+    ProductItem,
     BasePagination,
     ProductFilter,
   },
@@ -53,6 +57,8 @@ export default {
       filterPriceTo: 0,
       filterCategoryId: null,
       filterColor: null,
+
+      productsData: null,
     }
   },
   computed: {
@@ -88,11 +94,36 @@ export default {
       return filteredProducts
     },
     filteredProductsCount() {
-      return this.filteredProducts.length
+      return this.productsData?.pagination?.total ?? 0
     },
     pageProducts() {
-      const offset = (this.page - 1) * this.productsPerPage
-      return this.filteredProducts.slice(offset, offset + this.productsPerPage)
+      return (
+        this.productsData?.items?.map((product) => ({
+          ...product,
+          image: product.image.file.url,
+        })) ?? []
+      )
+    },
+  },
+  watch: {
+    page: {
+      handler() {
+        return this.loadProducts()
+      },
+      immediate: true,
+    },
+  },
+  methods: {
+    loadProducts() {
+      axios
+        .get("products", {
+          baseURL: "https://vue-study.skillbox.cc/api",
+          params: {
+            page: this.page,
+            limit: this.productsPerPage,
+          },
+        })
+        .then(({ data }) => (this.productsData = data))
     },
   },
 }

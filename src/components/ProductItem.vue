@@ -10,7 +10,7 @@
 
     <span class="catalog__price"> {{ price | numberFormat }} ₽ </span>
 
-    <ul v-if="colors" class="colors colors--black">
+    <!-- <ul v-if="colors" class="colors colors--black">
       <li v-for="color in colors" :key="color" class="colors__item">
         <label class="colors__label">
           <input
@@ -38,7 +38,7 @@
           <span class="sizes__value"> {{ size }}gb </span>
         </label>
       </li>
-    </ul>
+    </ul> -->
   </li>
 </template>
 
