@@ -10,45 +10,45 @@
 
     <span class="catalog__price"> {{ price | numberFormat }} ₽ </span>
 
-    <ul v-if="colors" class="colors colors--black">
-      <li
-        v-for="{ id: colorId, title, code } in colors"
-        :key="colorId"
-        class="colors__item"
-        title="title"
-      >
-        <label class="colors__label">
-          <input class="colors__radio sr-only" type="radio" :value="colorId" />
-          <span class="colors__value" :style="{ backgroundColor: code }">
-          </span>
-        </label>
-      </li>
-    </ul>
+    <ProductColors v-model="colorId" :colors="colors" />
 
-    <!-- <ul v-if="sizes" class="sizes">
-      <li v-for="size in sizes" :key="size" class="sizes__item">
-        <label class="sizes__label">
-          <input
-            class="sizes__radio sr-only"
-            type="radio"
-            :name="`sizes-${id}`"
-            :value="size"
-          />
-          <span class="sizes__value"> {{ size }}gb </span>
-        </label>
-      </li>
-    </ul> -->
+    <ProductSizes
+      v-model="size"
+      :sizes="[2 ** 5, 2 ** 6, 2 ** 7, 2 ** 8]"
+      type="radio"
+      base-class="sizes"
+    />
   </li>
 </template>
 
 <script>
 import numberFormat from "@/helpers/numberFormat"
 
+import ProductColors from "@/components/ProductColors.vue"
+import ProductSizes from "@/components/ProductSizes.vue"
+
 export default {
   name: "ProductItem",
+  components: {
+    ProductColors,
+    ProductSizes,
+  },
   props: ["id", "image", "title", "price", "colors", "sizes"],
   filters: {
     numberFormat,
   },
+  data() {
+    return {
+      colorId: null,
+      size: null,
+    }
+  },
 }
 </script>
+
+<style scoped>
+img {
+  aspect-ratio: 0.75;
+  object-position: center;
+}
+</style>

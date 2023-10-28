@@ -52,116 +52,19 @@
         <legend class="form__legend">
           Цвет<sup v-if="colorId !== currentColorId">*</sup>
         </legend>
-        <ul class="colors">
-          <li
-            v-for="{ id, title, code } in colors"
-            :key="id"
-            class="colors__item"
-            :title="title"
-          >
-            <label class="colors__label">
-              <input
-                type="radio"
-                v-model="currentColorId"
-                :value="id"
-                class="colors__radio sr-only"
-              />
-              <span class="colors__value" :style="{ 'background-color': code }">
-              </span>
-            </label>
-          </li>
-        </ul>
+
+        <ProductColors v-model="currentColorId" :colors="colors" />
       </fieldset>
 
       <fieldset class="form__block">
         <legend class="form__legend">Объемб в ГБ</legend>
-        <ul class="check-list">
-          <li class="check-list__item">
-            <label class="check-list__label">
-              <input
-                class="check-list__check sr-only"
-                type="checkbox"
-                name="volume"
-                value="8"
-                checked=""
-              />
-              <span class="check-list__desc">
-                8
-                <span>(313)</span>
-              </span>
-            </label>
-          </li>
-          <li class="check-list__item">
-            <label class="check-list__label">
-              <input
-                class="check-list__check sr-only"
-                type="checkbox"
-                name="volume"
-                value="16"
-              />
-              <span class="check-list__desc">
-                16
-                <span>(461)</span>
-              </span>
-            </label>
-          </li>
-          <li class="check-list__item">
-            <label class="check-list__label">
-              <input
-                class="check-list__check sr-only"
-                type="checkbox"
-                name="volume"
-                value="32"
-              />
-              <span class="check-list__desc">
-                32
-                <span>(313)</span>
-              </span>
-            </label>
-          </li>
-          <li class="check-list__item">
-            <label class="check-list__label">
-              <input
-                class="check-list__check sr-only"
-                type="checkbox"
-                name="volume"
-                value="64"
-              />
-              <span class="check-list__desc">
-                64
-                <span>(313)</span>
-              </span>
-            </label>
-          </li>
-          <li class="check-list__item">
-            <label class="check-list__label">
-              <input
-                class="check-list__check sr-only"
-                type="checkbox"
-                name="volume"
-                value="128"
-              />
-              <span class="check-list__desc">
-                128
-                <span>(313)</span>
-              </span>
-            </label>
-          </li>
-          <li class="check-list__item">
-            <label class="check-list__label">
-              <input
-                class="check-list__check sr-only"
-                type="checkbox"
-                name="volume"
-                value="264"
-              />
-              <span class="check-list__desc">
-                264
-                <span>(313)</span>
-              </span>
-            </label>
-          </li>
-        </ul>
+
+        <ProductSizes
+          v-model="currentSize"
+          :sizes="[2 ** 3, 2 ** 4, 2 ** 5, 2 ** 6, 2 ** 7, 2 ** 8]"
+          type="checkbox"
+          base-class="check-list"
+        />
       </fieldset>
 
       <button type="submit" class="filter__submit button button--primery">
@@ -182,8 +85,15 @@
 import axios from "axios"
 import { API_BASE_URL } from "@/config"
 
+import ProductColors from "@/components/ProductColors.vue"
+import ProductSizes from "@/components/ProductSizes.vue"
+
 export default {
   name: "ProductFilter",
+  components: {
+    ProductColors,
+    ProductSizes,
+  },
   props: {
     priceFrom: {
       type: Number,
@@ -206,6 +116,7 @@ export default {
       currentPriceTo: 0,
       currentCategoryId: null,
       currentColorId: null,
+      currentSize: [],
 
       categoriesData: null,
       colorsData: null,
