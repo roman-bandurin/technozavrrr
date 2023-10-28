@@ -10,8 +10,7 @@
         :price-from.sync="filterPriceFrom"
         :price-to.sync="filterPriceTo"
         :category-id.sync="filterCategoryId"
-        :color.sync="filterColor"
-        @update:categoryId="page = 1"
+        :color-id.sync="filterColorId"
       />
 
       <section class="catalog">
@@ -24,9 +23,9 @@
         </ul>
 
         <BasePagination
-          v-if="filteredProductsCount"
+          v-if="pagination && pagination.pages > 1"
           v-model="page"
-          :items-count="filteredProductsCount"
+          :items-count="pagination.total"
           :items-per-page="productsPerPage"
         />
       </section>
@@ -36,7 +35,7 @@
 
 <script>
 import axios from "axios"
-import products from "@/data/products.json"
+import { API_BASE_URL } from "@/config"
 import ProductItem from "@/components/ProductItem.vue"
 import BasePagination from "@/components/BasePagination.vue"
 import ProductFilter from "@/components/ProductFilter.vue"
@@ -56,46 +55,13 @@ export default {
       filterPriceFrom: 0,
       filterPriceTo: 0,
       filterCategoryId: null,
-      filterColor: null,
+      filterColorId: null,
 
       productsData: null,
+      loadProductsTimer: null,
     }
   },
   computed: {
-    filteredProducts() {
-      let filteredProducts = products
-
-      if (this.filterPriceFrom > 0) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.price > this.filterPriceFrom
-        )
-      }
-
-      if (this.filterPriceTo > 0) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.price < this.filterPriceTo
-        )
-      }
-
-      if (this.filterCategoryId) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.categoryId === this.filterCategoryId
-        )
-      }
-
-      if (this.filterColor) {
-        filteredProducts = filteredProducts.filter(
-          (product) =>
-            product.colors &&
-            product.colors.length &&
-            product.colors.includes(this.filterColor)
-        )
-      }
-      return filteredProducts
-    },
-    filteredProductsCount() {
-      return this.productsData?.pagination?.total ?? 0
-    },
     pageProducts() {
       return (
         this.productsData?.items?.map((product) => ({
@@ -103,6 +69,9 @@ export default {
           image: product.image.file.url,
         })) ?? []
       )
+    },
+    pagination() {
+      return this.productsData?.pagination
     },
   },
   watch: {
@@ -112,18 +81,41 @@ export default {
       },
       immediate: true,
     },
+    filterPriceFrom() {
+      return this.loadProducts(true)
+    },
+    filterPriceTo() {
+      return this.loadProducts(true)
+    },
+    filterCategoryId() {
+      return this.loadProducts(true)
+    },
+    filterColorId() {
+      return this.loadProducts(true)
+    },
   },
   methods: {
-    loadProducts() {
-      axios
-        .get("products", {
-          baseURL: "https://vue-study.skillbox.cc/api",
-          params: {
-            page: this.page,
-            limit: this.productsPerPage,
-          },
-        })
-        .then(({ data }) => (this.productsData = data))
+    loadProducts(isResetPage = false) {
+      clearTimeout(this.loadProductsTimer)
+
+      this.loadProductsTimer = setTimeout(
+        () =>
+          axios
+            .get("products", {
+              baseURL: API_BASE_URL,
+              params: {
+                page: this.page,
+                limit: this.productsPerPage,
+                minPrice: this.filterPriceFrom,
+                maxPrice: this.filterPriceTo,
+                categoryId: this.filterCategoryId,
+                colorId: this.filterColorId,
+              },
+            })
+            .then(({ data }) => (this.productsData = data))
+            .then(() => (isResetPage ? (this.page = 1) : null)),
+        1000
+      )
     },
   },
 }

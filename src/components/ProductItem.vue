@@ -10,23 +10,22 @@
 
     <span class="catalog__price"> {{ price | numberFormat }} ₽ </span>
 
-    <!-- <ul v-if="colors" class="colors colors--black">
-      <li v-for="color in colors" :key="color" class="colors__item">
+    <ul v-if="colors" class="colors colors--black">
+      <li
+        v-for="{ id: colorId, title, code } in colors"
+        :key="colorId"
+        class="colors__item"
+        title="title"
+      >
         <label class="colors__label">
-          <input
-            class="colors__radio sr-only"
-            type="radio"
-            :name="`color-${id}`"
-            :value="color"
-            checked=""
-          />
-          <span class="colors__value" :style="{ backgroundColor: color }">
+          <input class="colors__radio sr-only" type="radio" :value="colorId" />
+          <span class="colors__value" :style="{ backgroundColor: code }">
           </span>
         </label>
       </li>
     </ul>
 
-    <ul v-if="sizes" class="sizes">
+    <!-- <ul v-if="sizes" class="sizes">
       <li v-for="size in sizes" :key="size" class="sizes__item">
         <label class="sizes__label">
           <input

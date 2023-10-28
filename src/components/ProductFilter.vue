@@ -1,6 +1,6 @@
 <template>
   <aside class="filter">
-    <h2 class="filter__title">Фильтры</h2>
+    <h2 class="filter__title">Фильтры<sup v-if="isDirty">*</sup></h2>
 
     <form
       class="filter__form form"
@@ -9,14 +9,18 @@
       @submit.prevent="submit"
     >
       <fieldset class="form__block">
-        <legend class="form__legend">Цена</legend>
+        <legend class="form__legend">
+          Цена<sup v-if="isPriceDirty">*</sup>
+        </legend>
         <label class="form__label form__label--price">
           <input
             type="text"
             v-model.number="currentPriceFrom"
             class="form__input"
           />
-          <span class="form__value">От</span>
+          <span class="form__value">
+            От<sup v-if="priceFrom !== currentPriceFrom">*</sup>
+          </span>
         </label>
         <label class="form__label form__label--price">
           <input
@@ -24,12 +28,16 @@
             v-model.number="currentPriceTo"
             class="form__input"
           />
-          <span class="form__value">До</span>
+          <span class="form__value">
+            До<sup v-if="priceTo !== currentPriceTo">*</sup>
+          </span>
         </label>
       </fieldset>
 
       <fieldset class="form__block">
-        <legend class="form__legend">Категория</legend>
+        <legend class="form__legend">
+          Категория<sup v-if="categoryId !== currentCategoryId">*</sup>
+        </legend>
         <label class="form__label form__label--select">
           <select v-model="currentCategoryId" class="form__select">
             <option :value="null">Все категории</option>
@@ -41,20 +49,24 @@
       </fieldset>
 
       <fieldset class="form__block">
-        <legend class="form__legend">Цвет</legend>
+        <legend class="form__legend">
+          Цвет<sup v-if="colorId !== currentColorId">*</sup>
+        </legend>
         <ul class="colors">
-          <li v-for="colorItem in colors" :key="colorItem" class="colors__item">
+          <li
+            v-for="{ id, title, code } in colors"
+            :key="id"
+            class="colors__item"
+            :title="title"
+          >
             <label class="colors__label">
               <input
                 type="radio"
-                v-model="currentColor"
-                :value="colorItem"
+                v-model="currentColorId"
+                :value="id"
                 class="colors__radio sr-only"
               />
-              <span
-                class="colors__value"
-                :style="{ 'background-color': colorItem }"
-              >
+              <span class="colors__value" :style="{ 'background-color': code }">
               </span>
             </label>
           </li>
@@ -153,7 +165,7 @@
       </fieldset>
 
       <button type="submit" class="filter__submit button button--primery">
-        Применить
+        Применить<sup v-if="isDirty">*</sup>
       </button>
       <button
         type="button"
@@ -167,8 +179,8 @@
 </template>
 
 <script>
-import categories from "@/data/categories.json"
-import colors from "@/data/colors.json"
+import axios from "axios"
+import { API_BASE_URL } from "@/config"
 
 export default {
   name: "ProductFilter",
@@ -184,8 +196,8 @@ export default {
     categoryId: {
       type: Number,
     },
-    color: {
-      type: String,
+    colorId: {
+      type: Number,
     },
   },
   data() {
@@ -193,15 +205,32 @@ export default {
       currentPriceFrom: 0,
       currentPriceTo: 0,
       currentCategoryId: null,
-      currentColor: null,
+      currentColorId: null,
+
+      categoriesData: null,
+      colorsData: null,
     }
   },
   computed: {
     categories() {
-      return categories
+      return this.categoriesData?.items ?? []
     },
     colors() {
-      return colors
+      return this.colorsData?.items ?? []
+    },
+    isPriceDirty() {
+      return (
+        this.priceFrom !== this.currentPriceFrom ||
+        this.priceTo !== this.currentPriceTo
+      )
+    },
+    isDirty() {
+      return (
+        this.priceFrom !== this.currentPriceFrom ||
+        this.priceTo !== this.currentPriceTo ||
+        this.categoryId !== this.currentCategoryId ||
+        this.colorId !== this.currentColorId
+      )
     },
   },
   watch: {
@@ -214,22 +243,40 @@ export default {
     categoryId(value) {
       this.currentCategoryId = value
     },
-    color(value) {
-      this.currentColor = value
+    colorId(value) {
+      this.currentColorId = value
     },
+  },
+  created() {
+    this.loadCategories()
+    this.loadColors()
   },
   methods: {
     submit() {
       this.$emit("update:priceFrom", this.currentPriceFrom)
       this.$emit("update:priceTo", this.currentPriceTo)
       this.$emit("update:categoryId", this.currentCategoryId)
-      this.$emit("update:color", this.currentColor)
+      this.$emit("update:colorId", this.currentColorId)
     },
     reset() {
       this.$emit("update:priceFrom", 0)
       this.$emit("update:priceTo", 0)
       this.$emit("update:categoryId", null)
-      this.$emit("update:color", null)
+      this.$emit("update:colorId", null)
+    },
+    loadCategories() {
+      axios
+        .get("productCategories", {
+          baseURL: API_BASE_URL,
+        })
+        .then(({ data }) => (this.categoriesData = data))
+    },
+    loadColors() {
+      axios
+        .get("colors", {
+          baseURL: API_BASE_URL,
+        })
+        .then(({ data }) => (this.colorsData = data))
     },
   },
 }
