@@ -40,8 +40,9 @@ export default {
 <style scoped>
 .loading__backdrop {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  left: -2%;
+  width: 104%;
+  height: stretch;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -187,6 +188,6 @@ export default {
 
 .filter__submit.button.button--primery {
   margin: 15px;
-  width: -webkit-fill-available;
+  width: stretch;
 }
 </style>

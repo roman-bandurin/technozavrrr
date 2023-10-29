@@ -1,48 +1,46 @@
 import Vue from "vue"
 import Vuex from "vuex"
-
-const products = [
-  {
-    id: 1,
-    categoryId: 4,
-    image: "img/radio.jpg",
-    title: "Радионяня Motorola MBP16",
-    price: 3690,
-    colors: ["#73B6EA", "#8BE000", "#222"],
-  },
-  {
-    id: 2,
-    categoryId: 1,
-    image: "img/toothbrush.jpg",
-    title: "Ультразвуковая зубная щётка Playbrush Smart Sonic",
-    price: 5660,
-    colors: ["#F0F0F0", "#8BE000", "#73B6EA"],
-  },
-]
+import axios from "axios"
+import { API_BASE_URL } from "@/config"
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    cartProducts: [{ productId: 1, amount: 1 }],
+    cartProductsData: undefined,
+
+    userAccessKey: localStorage.getItem("userAccessKey"),
+    cartProducts: [],
+
+    loadCartTimer: null,
+    cartLoading: false,
+    cartLoadingFailed: false,
   },
   getters: {
-    cartDetailProducts({ cartProducts }) {
+    cartDetailProducts({
+      cartProducts,
+      cartProductsData: { items: products } = {},
+    }) {
       return cartProducts
         .map((item) => ({
           ...item,
-          product: products.find((product) => product.id === item.productId),
+          product: products.find(
+            ({ product: { id: productId } }) => productId === item.productId
+          )?.product,
         }))
-        .map((item) => ({
-          ...item,
-          priceAmount: item.product.price * item.amount,
+        .map(({ productId, product, amount }) => ({
+          productId,
+          product: {
+            ...product,
+            image: product.image.file.url,
+          },
+          price: product.price,
+          amount,
+          value: product.price * amount,
         }))
     },
     cartTotalPrice({}, { cartDetailProducts }) {
-      return cartDetailProducts.reduce(
-        (acc, { priceAmount }) => acc + priceAmount,
-        0
-      )
+      return cartDetailProducts.reduce((acc, { value }) => acc + value, 0)
     },
   },
   mutations: {
@@ -79,6 +77,85 @@ export default new Vuex.Store({
     deleteCartProduct(state, { productId }) {
       state.cartProducts = state.cartProducts.filter(
         (item) => item.productId !== productId
+      )
+    },
+
+    updateCartProductsData(state, data) {
+      state.cartProductsData = data
+    },
+    syncUserAccessKey(state) {
+      const {
+        userAccessKey,
+        cartProductsData: {
+          user: { accessKey },
+        },
+      } = state
+      if (!userAccessKey) {
+        localStorage.setItem("userAccessKey", accessKey)
+        state.userAccessKey = accessKey
+      }
+    },
+    syncCartProducts(state) {
+      const {
+        cartProductsData: { items },
+      } = state
+      state.cartProducts = items.map(
+        ({ product: { id: productId }, quantity: amount }) => ({
+          productId,
+          amount,
+        })
+      )
+    },
+
+    updateCartLoadTimer(state, { cartLoading, cartLoadingFailed, loadCartTimer, isClear }) {
+      cartLoading !== null ? (state.cartLoading = cartLoading) : null
+      cartLoadingFailed !== null ? (state.cartLoadingFailed = cartLoadingFailed) : null
+      loadCartTimer ? (state.loadCartTimer = loadCartTimer) : null
+      isClear ? clearTimeout(state.loadCartTimer) : null
+    },
+  },
+  actions: {
+    loadCart({ commit, state: { userAccessKey } }) {
+      commit("updateCartLoadTimer", {
+        cartLoading: true,
+        cartLoadingFailed: false,
+        loadCartTimer: null,
+        isClear: true,
+      })
+
+      this.loadCartTimer = setTimeout(
+        () =>
+          axios
+            .get("baskets2", {
+              baseURL: API_BASE_URL,
+              params: {
+                userAccessKey,
+              },
+            })
+            .then(
+              ({ data }) => (
+                commit("updateCartProductsData", data),
+                commit("syncUserAccessKey"),
+                commit("syncCartProducts")
+              )
+            )
+            .catch(() =>
+              commit("updateCartLoadTimer", {
+                cartLoading: null,
+                cartLoadingFailed: true,
+                loadCartTimer: null,
+                isClear: false,
+              })
+            )
+            .then(() =>
+              commit("updateCartLoadTimer", {
+                cartLoading: false,
+                cartLoadingFailed: null,
+                loadCartTimer: null,
+                isClear: false,
+              })
+            ),
+        5000
       )
     },
   },

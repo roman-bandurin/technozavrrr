@@ -16,7 +16,7 @@
 
     <BaseCounter v-model="currentAmount" />
 
-    <b class="product__price"> {{ priceAmount | numberFormat }} ₽ </b>
+    <b class="product__price"> {{ value | numberFormat }} ₽ </b>
 
     <button
       @click.prevent="deleteCartProduct({ productId })"
@@ -58,7 +58,7 @@ export default {
       type: Number,
       default: 0,
     },
-    priceAmount: {
+    value: {
       type: Number,
       default: 0,
     },

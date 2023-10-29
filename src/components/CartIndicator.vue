@@ -8,22 +8,58 @@
       <use xlink:href="#icon-cart"></use>
     </svg>
     <span
-      v-if="cartProducts && cartProducts.length"
-      class="header__count"
+      :class="{
+        header__count: true,
+        'header__count--spin': cartLoading,
+        'header__count--error': cartLoadingFailed,
+      }"
       aria-label="Количество товаров"
     >
-      {{ cartProducts.length }}
+      <template v-if="cartProducts && cartProducts.length">
+        {{ cartProducts.length }}
+      </template>
+      <template v-else> &nbsp; </template>
     </span>
   </router-link>
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { mapState, mapActions } from "vuex"
 
 export default {
   name: "CartIndicator",
   computed: {
-    ...mapState(["cartProducts"]),
+    ...mapState(["cartProducts", "cartLoading", "cartLoadingFailed"]),
+  },
+  methods: {
+    ...mapActions(["loadCart"]),
+  },
+  created() {
+    this.loadCart()
   },
 }
 </script>
+
+<style scoped>
+.header__count--spin {
+  animation: spin 500ms linear infinite;
+  color: #9eff00;
+}
+
+.header__count--error {
+  background-color: #e60039;
+  color: #e60039;
+}
+
+@keyframes spin {
+  0% {
+    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+  }
+  50% {
+    clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+  }
+  100% {
+    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+  }
+}
+</style>
