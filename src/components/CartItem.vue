@@ -16,12 +16,13 @@
 
     <BaseCounter v-model="currentAmount" />
 
-    <b class="product__price"> {{ value | numberFormat }} ₽ </b>
+    <b class="product__price"> {{ value | numberFormat }} ₽</b>
 
     <button
-      @click.prevent="deleteCartProduct({ productId })"
-      class="product__del button-del"
       type="button"
+      :disabled="productDeleteSending"
+      @click.prevent="deleteCurrentCartProduct"
+      class="product__del button-del"
       aria-label="Удалить товар из корзины"
     >
       <svg width="20" height="20" fill="currentColor">
@@ -32,7 +33,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex"
+import { mapActions } from "vuex"
 import BaseCounter from "@/components/BaseCounter.vue"
 import numberFormat from "@/helpers/numberFormat"
 
@@ -66,6 +67,11 @@ export default {
   filters: {
     numberFormat,
   },
+  data() {
+    return {
+      productDeleteSending: false,
+    }
+  },
   computed: {
     currentAmount: {
       get() {
@@ -80,7 +86,14 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(["updateCartProductAmount", "deleteCartProduct"]),
+    ...mapActions(["updateCartProductAmount", "deleteCartProduct"]),
+    deleteCurrentCartProduct() {
+      this.productDeleteSending = true
+
+      this.deleteCartProduct({ productId: this.productId }).then(
+        () => (this.productDeleteSending = false)
+      )
+    },
   },
 }
 </script>

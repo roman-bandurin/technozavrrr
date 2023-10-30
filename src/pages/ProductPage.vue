@@ -72,9 +72,21 @@
               <div class="item__row">
                 <BaseCounter v-model.number="productAmount" />
 
-                <button class="button button--primery" type="submit">
+                <button
+                  type="submit"
+                  :disabled="productAddSending"
+                  class="button button--primery"
+                >
                   В корзину
                 </button>
+
+                <div class="item__row-preloader">
+                  <BaseLoading :loading="productAddSending" />
+                </div>
+              </div>
+
+              <div v-show="productAdded" class="item__row-desc">
+                Товар добавлен в корзину
               </div>
             </form>
           </div>
@@ -123,7 +135,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex"
+import { mapActions } from "vuex"
 import axios from "axios"
 import { API_BASE_URL } from "@/config"
 
@@ -155,6 +167,9 @@ export default {
       productData: null,
       productLoading: false,
       productLoadingFailed: false,
+
+      productAdded: false,
+      productAddSending: false,
     }
   },
   computed: {
@@ -177,12 +192,17 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(["addProductToCart"]),
+    ...mapActions(["addProductToCart"]),
     addProduct() {
+      this.productAdded = false
+      this.productAddSending = true
+
       this.addProductToCart({
         productId: this.product.id,
         amount: +this.productAmount,
-      })
+      }).then(
+        () => ((this.productAdded = true), (this.productAddSending = false))
+      )
       this.productAmount = 1
     },
     loadProduct() {
@@ -210,5 +230,17 @@ export default {
 img {
   aspect-ratio: 0.75;
   object-position: center;
+}
+
+.item__row {
+  grid-template-columns: 150px 224px 70px;
+}
+
+.item__row-preloader {
+  position: relative;
+}
+
+.item__row-desc {
+  margin-top: 15px;
 }
 </style>

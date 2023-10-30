@@ -8,17 +8,21 @@
       <use xlink:href="#icon-cart"></use>
     </svg>
     <span
+      v-if="cartProducts && cartProducts.length"
+      class="header__count"
+      aria-label="Количество товаров"
+    >
+      {{ cartProducts.length }}
+    </span>
+    <span
+      v-if="cartLoading || cartLoadingFailed"
       :class="{
         header__count: true,
         'header__count--spin': cartLoading,
         'header__count--error': cartLoadingFailed,
       }"
-      aria-label="Количество товаров"
     >
-      <template v-if="cartProducts && cartProducts.length">
-        {{ cartProducts.length }}
-      </template>
-      <template v-else> &nbsp; </template>
+      &nbsp;
     </span>
   </router-link>
 </template>
