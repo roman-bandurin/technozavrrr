@@ -20,7 +20,14 @@
     </div>
 
     <section class="cart">
-      <form class="cart__form form" action="#" method="POST">
+      <BaseLoading :loading="orderLoading" />
+      <form
+        v-if="!orderLoading"
+        class="cart__form form"
+        action="#"
+        method="POST"
+        @submit.prevent="order"
+      >
         <div class="cart__field">
           <div class="cart__data">
             <BaseFormText
@@ -56,9 +63,9 @@
             />
 
             <BaseFormTextarea
-              v-model="formData.comments"
+              v-model="formData.comment"
               title="Комментарий к заказу"
-              :error="formError.comments"
+              :error="formError.comment"
               placeholder="Ваши пожелания"
             />
           </div>
@@ -148,12 +155,9 @@
             </button>
           </template>
         </div>
-        <div class="cart__error form__error-block">
+        <div v-if="formErrorMessage" class="cart__error form__error-block">
           <h4>Заявка не отправлена!</h4>
-          <p>
-            Похоже произошла ошибка. Попробуйте отправить снова или
-            перезагрузите страницу.
-          </p>
+          <p>{{ formErrorMessage }}</p>
         </div>
       </form>
     </section>
@@ -161,7 +165,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from "vuex"
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex"
+import axios from "axios"
+import { API_BASE_URL } from "@/config"
 import numberFormat from "@/helpers/numberFormat"
 import BaseFormField from "@/components/BaseFormField.vue"
 import BaseFormText from "@/components/BaseFormText.vue"
@@ -182,9 +188,10 @@ export default {
   data() {
     return {
       formData: {},
-      formError: {
-        phone: "Неверный формат телефона",
-      },
+      formError: {},
+      formErrorMessage: "",
+      loadOrderTimer: null,
+      orderLoading: false,
       deliveries: [
         { id: 0, title: "Самовывоз", highlight: "бесплатно" },
         { id: 500, title: "Курьером", highlight: "500 ₽" },
@@ -201,7 +208,12 @@ export default {
     }
   },
   computed: {
-    ...mapState(["cartProducts", "cartLoading", "cartLoadingFailed"]),
+    ...mapState([
+      "cartProducts",
+      "cartLoading",
+      "cartLoadingFailed",
+      "userAccessKey",
+    ]),
     ...mapGetters({
       products: "cartDetailProducts",
       cartTotalAmount: "cartTotalAmount",
@@ -212,7 +224,38 @@ export default {
     },
   },
   methods: {
+    ...mapMutations(["resetCart"]),
     ...mapActions(["loadCart"]),
+    order() {
+      this.formError = {}
+      this.formErrorMessage = ""
+      this.orderLoading = true
+
+      this.loadOrderTimer = setTimeout(
+        () =>
+          axios
+            .post("orders", this.formData, {
+              baseURL: API_BASE_URL,
+              params: {
+                userAccessKey: this.userAccessKey,
+              },
+            })
+            .then(() => ((this.formData = {}), this.resetCart()))
+            .catch(
+              ({
+                response: {
+                  data: {
+                    error: { request = {}, message = "" },
+                  },
+                },
+              }) => (
+                (this.formError = request), (this.formErrorMessage = message)
+              )
+            )
+            .then(() => (this.orderLoading = false)),
+        1000
+      )
+    },
   },
   created() {
     this.loadCart()
@@ -221,6 +264,9 @@ export default {
 </script>
 
 <style scoped>
+.cart {
+  position: relative;
+}
 .cart__block {
   position: relative;
 }

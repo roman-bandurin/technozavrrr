@@ -95,6 +95,10 @@ export default new Vuex.Store({
       loadCartTimer ? (state.loadCartTimer = loadCartTimer) : null
       isClear ? clearTimeout(state.loadCartTimer) : null
     },
+    resetCart(state) {
+      state.cartProductsData = undefined
+      state.cartProducts = []
+    },
   },
   actions: {
     loadCart({ commit, state: { userAccessKey } }) {
