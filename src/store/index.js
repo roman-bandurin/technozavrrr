@@ -39,7 +39,10 @@ export default new Vuex.Store({
           value: product.price * amount,
         }))
     },
-    cartTotalPrice({}, { cartDetailProducts }) {
+    cartTotalAmount({}, { cartDetailProducts }) {
+      return cartDetailProducts.reduce((acc, { amount }) => acc + amount, 0)
+    },
+    cartTotalValue({}, { cartDetailProducts }) {
       return cartDetailProducts.reduce((acc, { value }) => acc + value, 0)
     },
   },
@@ -191,6 +194,13 @@ export default new Vuex.Store({
       )
     },
     deleteCartProduct({ commit, state: { userAccessKey } }, { productId }) {
+      commit("updateCartLoadTimer", {
+        cartLoading: true,
+        cartLoadingFailed: false,
+        loadCartTimer: null,
+        isClear: true,
+      })
+
       return new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
         axios
           .delete("baskets/products", {
@@ -206,6 +216,22 @@ export default new Vuex.Store({
             ({ data }) => (
               commit("updateCartProductsData", data), commit("syncCartProducts")
             )
+          )
+          .catch(() =>
+            commit("updateCartLoadTimer", {
+              cartLoading: null,
+              cartLoadingFailed: true,
+              loadCartTimer: null,
+              isClear: false,
+            })
+          )
+          .then(() =>
+            commit("updateCartLoadTimer", {
+              cartLoading: false,
+              cartLoadingFailed: null,
+              loadCartTimer: null,
+              isClear: false,
+            })
           )
       )
     },

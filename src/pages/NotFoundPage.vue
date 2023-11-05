@@ -18,7 +18,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .content__top--not-found {
   text-align: center;
 }

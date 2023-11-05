@@ -1,5 +1,5 @@
 <template>
-  <main class="content container" style="position: relative">
+  <main class="content container">
     <BaseLoading
       :loading="cartLoading"
       :failed="cartLoadingFailed"
@@ -50,12 +50,18 @@
               Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
             </p>
             <p class="cart__price">
-              Итого: <span>{{ cartTotalPrice | numberFormat }} ₽</span>
+              Итого: <span>{{ cartTotalValue | numberFormat }} ₽</span>
             </p>
 
-            <button class="cart__button button button--primery" type="submit">
+            <router-link
+              v-if="cartProducts && cartProducts.length"
+              tag="button"
+              type="submit"
+              :to="{ name: 'order' }"
+              class="cart__button button button--primery"
+            >
               Оформить заказ
-            </button>
+            </router-link>
           </div>
         </form>
       </section>
@@ -82,7 +88,7 @@ export default {
     ...mapState(["cartProducts", "cartLoading", "cartLoadingFailed"]),
     ...mapGetters({
       products: "cartDetailProducts",
-      cartTotalPrice: "cartTotalPrice",
+      cartTotalValue: "cartTotalValue",
     }),
   },
   methods: {
@@ -93,3 +99,9 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.content {
+  position: relative;
+}
+</style>

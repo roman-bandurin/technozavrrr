@@ -3,7 +3,6 @@
     <BaseLoading
       :loading="productLoading"
       :failed="productLoadingFailed"
-      style="position: static; margin-top: 60px"
       @retry="loadProduct"
     />
     <template v-if="product">
@@ -230,6 +229,12 @@ export default {
 img {
   aspect-ratio: 0.75;
   object-position: center;
+}
+
+.content {
+  position: relative;
+  margin-top: 60px;
+  margin-bottom: 95px;
 }
 
 .item__row {
