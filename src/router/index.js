@@ -24,13 +24,19 @@ const routes = [
     path: "/cart",
     name: "cart",
     component: () =>
-      import(/* webpackChunkName: "product" */ "@/pages/CartPage.vue"),
+      import(/* webpackChunkName: "cart" */ "@/pages/CartPage.vue"),
   },
   {
     path: "/order",
     name: "order",
     component: () =>
-      import(/* webpackChunkName: "product" */ "@/pages/OrderPage.vue"),
+      import(/* webpackChunkName: "order" */ "@/pages/OrderPage.vue"),
+  },
+  {
+    path: "/order/:id",
+    name: "orderInfo",
+    component: () =>
+      import(/* webpackChunkName: "order-info" */ "@/pages/OrderInfoPage.vue"),
   },
   {
     path: "*",

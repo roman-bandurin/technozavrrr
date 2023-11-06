@@ -15,6 +15,8 @@ export default new Vuex.Store({
     loadCartTimer: null,
     cartLoading: false,
     cartLoadingFailed: false,
+
+    orderInfo: null,
   },
   getters: {
     cartDetailProducts({
@@ -99,8 +101,22 @@ export default new Vuex.Store({
       state.cartProductsData = undefined
       state.cartProducts = []
     },
+
+    updateOrderInfo(state, orderInfo) {
+      state.orderInfo = orderInfo
+    },
   },
   actions: {
+    loadOrderInfo({ commit, state: { userAccessKey } }, { orderId }) {
+      axios
+        .get(`orders/${orderId}`, {
+          baseURL: API_BASE_URL,
+          params: {
+            userAccessKey,
+          },
+        })
+        .then(({ data }) => commit("updateOrderInfo", data))
+    },
     loadCart({ commit, state: { userAccessKey } }) {
       commit("updateCartLoadTimer", {
         cartLoading: true,

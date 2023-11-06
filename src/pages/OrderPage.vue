@@ -224,7 +224,7 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(["resetCart"]),
+    ...mapMutations(["resetCart", "updateOrderInfo"]),
     ...mapActions(["loadCart"]),
     order() {
       this.formError = {}
@@ -240,7 +240,17 @@ export default {
                 userAccessKey: this.userAccessKey,
               },
             })
-            .then(() => ((this.formData = {}), this.resetCart()))
+            .then(
+              ({ data }) => (
+                (this.formData = {}),
+                this.resetCart(),
+                this.updateOrderInfo(data),
+                this.$router.push({
+                  name: "orderInfo",
+                  params: { id: data.id },
+                })
+              )
+            )
             .catch(
               ({
                 response: {
@@ -249,7 +259,8 @@ export default {
                   },
                 },
               }) => (
-                (this.formError = request), (this.formErrorMessage = message)
+                (this.formError = request),
+                (this.formErrorMessage = message)
               )
             )
             .then(() => (this.orderLoading = false)),
