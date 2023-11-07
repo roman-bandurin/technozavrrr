@@ -1,4 +1,4 @@
-# skillbox
+# technozavrrr
 
 ## Project setup
 ```
